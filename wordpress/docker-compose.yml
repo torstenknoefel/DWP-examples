@@ -1,0 +1,44 @@
+##############################################################
+# DO NOT FORGET TO SET THE ENVIRONMENT VARIABLES IN THE FILE
+#            .env
+# which is automatically sourced when the container are started
+
+# we are using Compose file format version 3
+version: '3'
+
+# we want to start the following 
+services:
+   mariadb:
+     image: mariadb               # use mariadb image
+     ports:
+       - '3306:3306'              # map port 3306 of host
+                                  # to 3306 of container
+     volumes:
+       - ./db-data:/var/lib/mysql # mount host directory '/db-data' 
+                                  # on '/var/lib/mysql' of container
+                                  # to make db persistant 
+     restart: always              # always restart the services
+                                  # when it stops
+     environment:                 # make environment variables 
+                                  # available in container
+       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+   wordpress:
+     depends_on:                  # WordPress depends on
+       - mariadb                  # MariaDB container running
+     image: wordpress:fpm         # use wordpress imsge 
+                                  # with fpm feature
+     ports:                       
+       - '9000:9000'              # map port 9000 of host
+                                  # to 9000 of container
+     volumes:
+       - ./wordpress:/var/www/html # wordpress content directory
+                                  # php config for larger uploads
+       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini 
+
+     restart: always              # always restart the service
+     environment:                 # set environment variables 
+       WORDPRESS_DB_HOST: mariadb:3306
+       WORDPRESS_DB_NAME: wpdb
+       WORDPRESS_TABLE_PREFIX: wp_
+       WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
