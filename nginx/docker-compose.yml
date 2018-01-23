@@ -48,8 +48,8 @@ services:
      depends_on:                  # NGINX depends on
         - wordpress               # WordPress container running
      image: nginx:latest          # use nginx image, latest release
-     ports:                       # map port 8080 of host
-        - '8080:80'               # to 80 of container
+     ports:                       # map port WEB_PORT of host
+        - '${WEB_PORT}:80'        # to 80 of container
      volumes:
         - ./nginx:/etc/nginx/conf.d   # NGINX config directory
         - ./logs/nginx:/var/log/nginx # NGINX log files
